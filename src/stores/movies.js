@@ -5,6 +5,7 @@ import { computed, ref } from 'vue'
 export const useMoviesStore = defineStore('movies', () => {
 
     const movies = ref([])
+    const futureFilms = ref([])
     const movie = ref({})
     const cast = ref([])
     
@@ -21,6 +22,10 @@ export const useMoviesStore = defineStore('movies', () => {
 
     const sliceCast = computed(() => {
         return cast.value.slice(0, 10)
+    })
+
+    const sliceMovies = computed(() => {
+        return movies.value.slice(0, 10)
     })
 
     async function getMovies() {
@@ -73,15 +78,28 @@ export const useMoviesStore = defineStore('movies', () => {
             console.log(error);
         }
     }
+
+    async function getFutureFilms() {
+        try {
+            const res = await fetch(`https://api.themoviedb.org/3/movie/upcoming?language=es-Es&page=1`, options)
+            const data = await res.json()
+            futureFilms.value = data.results
+        } catch (error) {
+            console.log(error);
+        }
+    }
     return {
         movies,
         laoding,
         movie,
         cast,
+        futureFilms,
         sliceCast,
+        sliceMovies,
         getMovies,
         seeMoreFilms,
         getMovie,
-        getCast
+        getCast,
+        getFutureFilms
     }
 })

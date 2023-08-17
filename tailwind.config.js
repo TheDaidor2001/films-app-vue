@@ -5,7 +5,11 @@ module.exports = {
     "./src/**/*.{vue,js}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      backgroundImage: {
+        'hero-pattern': "url('/mario.jpeg')",
+      }
+    },
   },
   plugins: [require("daisyui")],
 }
