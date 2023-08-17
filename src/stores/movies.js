@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 
 export const useMoviesStore = defineStore('movies', () => {
 
     const movies = ref([])
     const movie = ref({})
+    const cast = ref([])
+    
     const laoding = ref(false)
     let page = 1
 
@@ -17,15 +19,19 @@ export const useMoviesStore = defineStore('movies', () => {
         }
     }
 
+    const sliceCast = computed(() => {
+        return cast.value.slice(0, 10)
+    })
+
     async function getMovies() {
         laoding.value = true
         movies.value = []
+        page = 1
         try {
             const res = await fetch(`https://api.themoviedb.org/3/movie/popular?language=es-ES&page=${page}`, options)
             const data = await res.json()
             movies.value.length === 0 ? movies.value = data.results : movies.value = movies.value.concat(data.results)
            
-            console.log(`https://api.themoviedb.org/3/movie/popular?language=es-ES&page=${page}`);
         } catch (error) {
             console.log(error);
         }finally {
@@ -39,7 +45,6 @@ export const useMoviesStore = defineStore('movies', () => {
             const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?language=es-ES`, options)
             const data = await res.json()
             movie.value = data
-            console.log(movie.value);
         } catch (error) {
             console.log(error);
         }
@@ -52,20 +57,31 @@ export const useMoviesStore = defineStore('movies', () => {
             const res = await fetch(`https://api.themoviedb.org/3/movie/popular?language=es-ES&page=${page}`, options)
             const data = await res.json()
             movies.value.length === 0 ? movies.value = data.results : movies.value = movies.value.concat(data.results)
-           
-            console.log(`https://api.themoviedb.org/3/movie/popular?language=es-ES&page=${page}`);
         } catch (error) {
             console.log(error);
         }finally {
             laoding.value = false
         }
     }
+    async function getCast(id) {
+        try {
+            const res = await fetch(`https://api.themoviedb.org/3/movie/${id}/credits?language=es-ES`, options)
+            const data = await res.json()
+            cast.value = data.cast
+            console.log(cast.value.name);
+        } catch (error) {
+            console.log(error);
+        }
+    }
     return {
         movies,
         laoding,
         movie,
+        cast,
+        sliceCast,
         getMovies,
         seeMoreFilms,
-        getMovie
+        getMovie,
+        getCast
     }
 })
