@@ -13,8 +13,6 @@ export const useSeriesStore = defineStore('series', () => {
         }
     };
     async function getRatedSeries() {
-
-
         try {
             const res = await fetch('https://api.themoviedb.org/3/trending/tv/day?language=es-ES', options)
             const data = await res.json()

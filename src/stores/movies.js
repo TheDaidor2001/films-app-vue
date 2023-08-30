@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import {useRouter} from 'vue-router'
 
 
 export const useMoviesStore = defineStore('movies', () => {
@@ -8,6 +9,10 @@ export const useMoviesStore = defineStore('movies', () => {
     const futureFilms = ref([])
     const movie = ref({})
     const cast = ref([])
+    const recomendedFilms = ref([])
+
+    const router = useRouter()
+
     
     const laoding = ref(false)
     let page = 1
@@ -21,7 +26,7 @@ export const useMoviesStore = defineStore('movies', () => {
     }
 
     const sliceCast = computed(() => {
-        return cast.value.slice(0, 10)
+        return cast.value.slice(0, 15)
     })
 
     const sliceMovies = computed(() => {
@@ -50,6 +55,9 @@ export const useMoviesStore = defineStore('movies', () => {
             const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?language=es-ES`, options)
             const data = await res.json()
             movie.value = data
+            getCast(id)
+            getRecomendedFilms(id)
+        
         } catch (error) {
             console.log(error);
         }
@@ -69,6 +77,7 @@ export const useMoviesStore = defineStore('movies', () => {
         }
     }
     async function getCast(id) {
+        cast.value = []
         try {
             const res = await fetch(`https://api.themoviedb.org/3/movie/${id}/credits?language=es-ES`, options)
             const data = await res.json()
@@ -88,18 +97,36 @@ export const useMoviesStore = defineStore('movies', () => {
             console.log(error);
         }
     }
+
+    async function getRecomendedFilms(id){
+        recomendedFilms.value = []
+        try {
+            const res = await fetch(`https://api.themoviedb.org/3/movie/${id}/recommendations?language=es-Es&page=1`, options)
+            const data = await res.json()
+            recomendedFilms.value = data.results
+
+
+            console.log(recomendedFilms.value);
+        } catch (error) {
+            console.log(error);
+        }
+    
+    }
+
     return {
         movies,
         laoding,
         movie,
         cast,
         futureFilms,
+        recomendedFilms,
         sliceCast,
         sliceMovies,
         getMovies,
         seeMoreFilms,
         getMovie,
         getCast,
-        getFutureFilms
+        getFutureFilms,
+        getRecomendedFilms
     }
 })

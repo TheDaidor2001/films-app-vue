@@ -30,7 +30,7 @@ import { RouterLink } from "vue-router";
           <li><a>Series</a></li>
         </ul>
       </div>
-      <a class="btn btn-ghost normal-case text-xl">daisyUI</a>
+      <RouterLink :to="{name: 'home'}" class="btn btn-ghost normal-case text-xl">Inicio</RouterLink>
     </div>
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal px-1">
