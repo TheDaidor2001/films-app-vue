@@ -2,22 +2,24 @@
 import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useMoviesStore } from "../stores/movies";
+import VideoItem from "../components/UI/videoItem.vue";
 
 const movieStore = useMoviesStore();
 const route = useRoute();
 const { id } = route.params;
-const date = ref("");
+const date = ref('');
 
 onMounted(async () => {
   await movieStore.getMovie(id);
   await movieStore.getCast(id);
   await movieStore.getRecomendedFilms(id)
+  await movieStore.getMovieVideos(id)
   date.value = movieStore.movie?.release_date;
 });
 
 const getYear = computed(() => {
-  const year = new Date(date).getFullYear();
-  return year;
+  const year = date.value.split('-')
+  return  year[0]
 });
 
 const twoNumbers = computed(() => {
@@ -31,8 +33,8 @@ const twoNumbers = computed(() => {
     <img class="w-full opacity-40 h-auto lg:h-full absolute -z-50"
       :src="`https://image.tmdb.org/t/p/original${movieStore.movie.backdrop_path}`" alt="" />
     <div class="z-20 px-10 lg:px-32 py-10 flex flex-col lg:flex-row gap-5 lg:gap-20">
-      <div class="flex items-center mx-h-[570px]">
-        <img class="w-auto max-h-[570px] mx-auto lg:mx-0 rounded-xl"
+      <div class="flex items-center">
+        <img class="w-auto h-auto max-h-[570px] mx-auto lg:mx-0 rounded-xl"
           :src="`https://image.tmdb.org/t/p/original${movieStore.movie.poster_path}`" alt="" />
       </div>
       <div class="mt-10">
@@ -58,24 +60,33 @@ const twoNumbers = computed(() => {
             </div>
           </div>
           <p class="text-white">Puntuación de usuarios</p>
+          <VideoItem :video="movieStore.videos"/>
         </div>
         <p class="mt-2 text-gray-300">{{ movieStore.movie.tagline }}</p>
         <h3 class="mt-3 text-xl text-white font-semibold">Vista General</h3>
         <p class="text-gray-300 text-md">{{ movieStore.movie.overview }}</p>
+        <h3 class="hidden lg:block mt-3 text-xl text-white font-semibold">Compañias</h3>
+        <div class=" lg:flex gap-5 mt-3">
+          <ul class="flex gap-5 items-center " v-for="company in  movieStore.movie?.production_companies">
+            <li>
+              <img class="w-auto  h-10" :src="`https://image.tmdb.org/t/p/original${company.logo_path}`" alt="">
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </header>
   <section class="max-w-7xl mx-auto lg:p-0 mt-10 md:mt-[600px] lg:mt-10 p-5">
-    <h3 class="text-white text-2xl font-semibold text-center">Reparto principal</h3>
-    <div class="overflow-x-scroll flex gap-5 mt-5">
-      <div class="w-20 flex-none first:pl-6 last:pr-6" v-for="item in movieStore.sliceCast" :key="item.id">
+    <h3 class="text-white text-2xl font-semibold">Reparto principal</h3>
+    <div class="overflow-x-scroll flex gap-2 mt-5">
+      <div class="w-20 flex-none first:pl-6 last:pr-6 mb-5" v-for="item in movieStore.sliceCast" :key="item.id">
         <div>
-          <img v-if="item?.profile_path" class="rounded-lg min-h-16"
+          <img v-if="item?.profile_path" class="rounded-lg w-auto h-32 object-cover"
             :src="`https://image.tmdb.org/t/p/original${item.profile_path}`" alt="" />
           <img class="rounded-lg min-h-16" v-else
             src="https://iidamidamerica.org/wp-content/uploads/2020/12/male-placeholder-image.jpeg" alt="">
         </div>
-        <p class="w-2/3">{{ item.name }}</p>
+        <p class="truncate">{{ item.name }}</p>
       </div>
     </div>
   </section>
@@ -84,16 +95,15 @@ const twoNumbers = computed(() => {
     <div class="overflow-x-scroll flex gap-5 mt-5">
       <div class="w-60 flex-none first:pl-6 last:pr-6 mb-5" v-for="item in movieStore.recomendedFilms" :key="item.id">
         <routerLink :to="`/movies/${item.id}`" @click="movieStore.getMovie(item.id)">
-          <img class="rounded-lg h-32"
-          v-if="item?.backdrop_path"
-          :src="`https://image.tmdb.org/t/p/original${item?.backdrop_path}`" alt="" />
-          <img class="rounded-lg h-32 w-full"
-          v-else
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/681px-Placeholder_view_vector.svg.png" alt="" />
+          <img class="rounded-lg h-32" v-if="item?.backdrop_path"
+            :src="`https://image.tmdb.org/t/p/original${item?.backdrop_path}`" alt="" />
+          <img class="rounded-lg h-32 w-full" v-else
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/681px-Placeholder_view_vector.svg.png"
+            alt="" />
         </routerLink>
         <div class="flex justify-between mt-3 pr-3">
           <p class="w-2/3 truncate text-white">{{ item.title }}</p>
-          <p class="text-gray-300 text-sm">{{ Number(item.vote_average.toFixed(1) *10) }}%</p>
+          <p class="text-gray-300 text-sm">{{ Number(item.vote_average.toFixed(1) * 10) }}%</p>
         </div>
       </div>
     </div>
@@ -101,4 +111,4 @@ const twoNumbers = computed(() => {
 </template>
 
 
-<style scoped></style>
+

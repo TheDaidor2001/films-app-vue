@@ -10,6 +10,7 @@ export const useMoviesStore = defineStore('movies', () => {
     const movie = ref({})
     const cast = ref([])
     const recomendedFilms = ref([])
+    const videos = ref([])
 
     const router = useRouter()
 
@@ -113,6 +114,17 @@ export const useMoviesStore = defineStore('movies', () => {
     
     }
 
+    async function getMovieVideos(id) {
+        try {
+            const res = await fetch(`https://api.themoviedb.org/3/movie/${id}/videos`, options)
+            const data = await res.json()
+            console.log(data.results[0].key);
+            videos.value = data.results
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return {
         movies,
         laoding,
@@ -120,6 +132,7 @@ export const useMoviesStore = defineStore('movies', () => {
         cast,
         futureFilms,
         recomendedFilms,
+        videos,
         sliceCast,
         sliceMovies,
         getMovies,
@@ -127,6 +140,7 @@ export const useMoviesStore = defineStore('movies', () => {
         getMovie,
         getCast,
         getFutureFilms,
-        getRecomendedFilms
+        getRecomendedFilms,
+        getMovieVideos
     }
 })
